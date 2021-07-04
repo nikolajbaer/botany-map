@@ -1,6 +1,6 @@
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
-import os.path,os,json
+import os.path,os,json,csv
 
 def convert_to_degrees(value):
         return float(value[0]) + (float(value[1]) / 60.0) + (float(value[2]) / 3600.0)
@@ -52,8 +52,18 @@ def gen_features():
   return features
 
 if __name__=="__main__":
+  features = gen_features()
   with open("features.json","w") as f:
-    features = gen_features()
     f.write(json.dumps(features,indent=1))
-    print("Wrote %i features to features.json" % len(features))
-
+  with open("features.csv","w") as f:
+    c = csv.DictWriter(f,fieldnames=("lat","lng","alt","date","label"))
+    c.writeheader()
+    for f in features:
+      c.writerow({
+        "lat": f["geometry"]["coordinates"][1],
+        "lng": f["geometry"]["coordinates"][0],
+        "alt": f["properties"]["altitude"],
+        "label": f["properties"]["label"],
+        "date": f["properties"]["date"],
+      })
+  print("Wrote %i features to features.json and features.csv" % len(features))
