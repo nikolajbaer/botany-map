@@ -56,10 +56,11 @@ if __name__=="__main__":
   with open("features.json","w") as f:
     f.write(json.dumps(features,indent=1))
   with open("features.csv","w") as f:
-    c = csv.DictWriter(f,fieldnames=("lat","lng","alt","date","label"))
+    c = csv.DictWriter(f,fieldnames=("filename","lat","lng","alt","date","label"))
     c.writeheader()
     for f in features:
       c.writerow({
+        "filename": f["name"],
         "lat": f["geometry"]["coordinates"][1],
         "lng": f["geometry"]["coordinates"][0],
         "alt": f["properties"]["altitude"],

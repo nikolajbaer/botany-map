@@ -70,13 +70,19 @@
 								<img class="thumb" src="${feature.properties.imageUrl}" width="300" />
 							</a><br>
 							<dl>
+								<dt>Name:</dt>
+									<dd>${feature.properties.name}</dd>
 								<dt>Altitude:</dt>
 									<dd>${feature.properties.altitude}m</dd>
 								<dt>Label:</dt>
 									<dd>${feature.properties.label}</dd>
 								<dt>Date:</dt>
 									<dd>${feature.properties.date}</dd>
-								<dt>
+								<dt>Location</dt>
+									<dd>
+										${feature.geometry.coordinates[1].toFixed(8)},
+										${feature.geometry.coordinates[0].toFixed(8)}
+									</dd>
 							</dl>
 						`);
 					}
