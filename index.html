@@ -24,6 +24,9 @@
 		margin: 0px;
 		padding: 0px;
  	}
+	img.thumb {
+		cursor: zoom-in;
+	}
 	</style>
  	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
@@ -34,25 +37,19 @@
 <script>
 	var map = null;
 
-	function init(){
-		var data = {
-		    "type": "Feature",
-		    "properties": {
-		        "name": "Half Dome",
-		        "amenity": "Mountain",
-		        "popupContent": "Half Dome"
-		    },
-		    "geometry": {
-		        "type": "Point",
-		        "coordinates": [-119.541954,37.7459184]
-		    }
-		}			
+	const COLORS = {
+		'unsorted': "gray",
+		'limone':   "yellow",
+		'plateosperm': "green",
+		'retrofracta': "blue",
+		'triploid': "purple"
+	}
 
-		var center = [data.geometry.coordinates[1],data.geometry.coordinates[0]]
-		map = L.map('map').setView(center, 13);
+	function init(){
+		map = L.map('map').setView([37,-119], 13);
 
 		var mapLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-			maxZoom: 15,
+			maxZoom: 17,
 			attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
 		}).addTo(map);
 
@@ -62,11 +59,31 @@
 		    "opacity": 0.65,
 		}
 
-		var dataLayer = L.geoJSON().addTo(map);
-		dataLayer.addData(data,{
-			pointToLayer: function(feature,latlng){
-        		return L.circleMarker(latlng, {fillColor: "#f00"});
-			}
+		fetch("/features.json").then( response => {
+			response.json().then( data => {
+				console.log("Adding ",data)
+				var geoJSON = L.geoJSON(data,{
+					onEachFeature: function(feature, layer){
+						console.log("Binding popup for ",feature)
+					    layer.bindPopup(`
+							<a href="${feature.properties.imageUrl}" target="_blank">
+								<img class="thumb" src="${feature.properties.imageUrl}" width="300" />
+							</a><br>
+							<dl>
+								<dt>Altitude:</dt>
+									<dd>${feature.properties.altitude}m</dd>
+								<dt>Label:</dt>
+									<dd>${feature.properties.label}</dd>
+								<dt>Date:</dt>
+									<dd>${feature.properties.date}</dd>
+								<dt>
+							</dl>
+						`);
+					}
+				})
+				geoJSON.addTo(map)
+				map.fitBounds(geoJSON.getBounds());
+			})	
 		})
 	}
 
