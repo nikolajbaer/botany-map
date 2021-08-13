@@ -38,7 +38,7 @@ def gen_features():
         "properties": {
             "name": i,
             "amenity": "Location",
-            "popupContent": "%s: %s",
+            "popupContent": "%s: %s" % (d,i),
             "imageUrl": os.path.join('/images',d,i),
             "label": d,
             "altitude": alt,
@@ -53,14 +53,16 @@ def gen_features():
 
 if __name__=="__main__":
   features = gen_features()
+  print(features)
   with open("features.json","w") as f:
     f.write(json.dumps(features,indent=1))
   with open("features.csv","w") as f:
     c = csv.DictWriter(f,fieldnames=("filename","lat","lng","alt","date","label"))
     c.writeheader()
     for f in features:
+      print(f)
       c.writerow({
-        "filename": f["name"],
+        "filename": f["properties"]["name"],
         "lat": f["geometry"]["coordinates"][1],
         "lng": f["geometry"]["coordinates"][0],
         "alt": f["properties"]["altitude"],
